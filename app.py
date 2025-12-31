@@ -8,7 +8,6 @@ try:
     api_key = st.secrets["GEMINI_API_KEY"]
 except:
     # Fallback for local testing if you haven't set secrets yet
-    # Remove this line before deploying if you want to be extra safe
     st.warning("⚠️ No API Key found in Secrets. Using placeholder (App won't generate).")
     api_key = "PLACEHOLDER"
 
@@ -52,7 +51,8 @@ if st.button("Get My Cartoon Prediction! 🚀"):
         with st.spinner("Drawing a cartoon of your future... 🎨"):
             try:
                 # --- THE PROMPT RE-ENGINEERED FOR CARTOONS ---
-               model = genai.GenerativeModel('gemini-1.5-flash')
+                # Using the faster model to fix the 404 error
+                model = genai.GenerativeModel('gemini-1.5-flash')
                 
                 cartoon_prompt = (
                     f"Imagine you are a hilarious, high-energy cartoon narrator (like a mix of a Disney sidekick and an Anime hero). "
@@ -79,5 +79,4 @@ if st.button("Get My Cartoon Prediction! 🚀"):
 
 # --- FOOTER ---
 st.markdown("---")
-
-st.caption("✨ Made with AI for the Family New Year Party ✨")
+st.caption("✨ Made with AI for the Family New Year Party ✨") 
