@@ -52,7 +52,7 @@ if st.button("Get My Cartoon Prediction! 🚀"):
         with st.spinner("Drawing a cartoon of your future... 🎨"):
             try:
                 # --- THE PROMPT RE-ENGINEERED FOR CARTOONS ---
-                model = genai.GenerativeModel('gemini-pro')
+               model = genai.GenerativeModel('gemini-1.5-flash')
                 
                 cartoon_prompt = (
                     f"Imagine you are a hilarious, high-energy cartoon narrator (like a mix of a Disney sidekick and an Anime hero). "
@@ -79,4 +79,5 @@ if st.button("Get My Cartoon Prediction! 🚀"):
 
 # --- FOOTER ---
 st.markdown("---")
+
 st.caption("✨ Made with AI for the Family New Year Party ✨")
