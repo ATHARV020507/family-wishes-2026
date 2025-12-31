@@ -23,6 +23,14 @@ st.markdown("""
         border-radius: 10px;
         padding: 10px;
     }
+    .strength-box {
+        padding: 15px;
+        border-radius: 10px;
+        background-color: #262730;
+        border: 2px solid #FF4B4B;
+        text-align: center;
+        margin-bottom: 20px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -43,51 +51,57 @@ def find_working_model(key):
         response = requests.get(url)
         if response.status_code == 200:
             data = response.json()
-            # Look for a model that supports generating content
             for model in data.get('models', []):
                 if 'generateContent' in model.get('supportedGenerationMethods', []):
-                    return model['name'] # Returns something like 'models/gemini-pro'
+                    return model['name'] 
     except:
         pass
-    return "models/gemini-1.5-flash" # Fallback if discovery fails
+    return "models/gemini-1.5-flash" 
 
 # --- MAIN GENERATION FUNCTION ---
 def get_prediction(name, resolution, key):
-    # Step 1: Find a valid model name
     model_name = find_working_model(key)
-    
-    # Step 2: Build the URL dynamically
     url = f"https://generativelanguage.googleapis.com/v1beta/{model_name}:generateContent?key={key}"
     
     headers = {"Content-Type": "application/json"}
-    prompt = f"Act as a funny cartoon narrator. User {name} wants to '{resolution}'. Predict their 2026 in a funny, encouraging way. Use emojis. Max 100 words."
     
-    data = {
-        "contents": [{
-            "parts": [{"text": prompt}]
-        }]
-    }
+    # UPDATED PROMPT: Ask for Strength Rating
+    prompt = (
+        f"Act as a funny cartoon narrator. User {name} wants to '{resolution}'. "
+        f"1. First, classify this resolution as exactly one of these three: '🔥 SUPER STRONG', '✨ SOLID & BALANCED', or '🐣 GENTLE / WEAK'. "
+        f"2. Then, give a funny 'Future Prediction' scene for 2026. "
+        f"3. End with a punchline. "
+        f"Format the output clearly. Use emojis. Keep it under 150 words."
+    )
+    
+    data = { "contents": [{ "parts": [{"text": prompt}] }] }
     
     response = requests.post(url, headers=headers, data=json.dumps(data))
     
     if response.status_code == 200:
-        return response.json()['candidates'][0]['content']['parts'][0]['text'], model_name
+        return response.json()['candidates'][0]['content']['parts'][0]['text']
     else:
-        return f"Error: {response.status_code} - {response.text}", model_name
+        return f"Error: {response.status_code} - {response.text}"
 
 # --- BUTTON ---
-if st.button("Reveal My Destiny! 🚀"):
+if st.button("Judge My Resolution! 🚀"):
     if not name or not resolution:
         st.error("Please enter a name and wish.")
     else:
-        with st.spinner("Consulting the stars..."):
-            result, used_model = get_prediction(name, resolution, api_key)
+        with st.spinner("The Genie is judging you... 🧐"):
+            result = get_prediction(name, resolution, api_key)
             
             if "Error" in result:
-                st.error("The Genie is stuck.")
-                st.code(result) # Shows the exact technical error
-                st.caption(f"Tried using model: {used_model}")
+                st.error("Connection failed.")
+                st.code(result)
             else:
                 st.balloons()
-                st.success(f"✨ Prediction for {name} ✨")
-                st.write(result)
+                st.success(f"✨ Judgment Day for {name}! ✨")
+                
+                # We display the whole result in a nice box
+                st.markdown("### 🔮 The Genie Says:")
+                st.markdown(f"{result}")
+                
+# --- FOOTER ---
+st.markdown("---")
+st.caption("✨ Made with AI for the Family New Year Party ✨")
