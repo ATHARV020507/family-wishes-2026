@@ -3,7 +3,8 @@ import google.generativeai as genai
 
 # --- CONFIGURATION ---
 try:
-    api_key = st.secrets["GEMINI_API_KEY"]
+    # .strip() removes accidental spaces from your key!
+    api_key = st.secrets["GEMINI_API_KEY"].strip()
 except:
     st.warning("⚠️ No API Key found in Secrets.")
     api_key = "PLACEHOLDER"
@@ -45,7 +46,7 @@ if st.button("Get My Cartoon Prediction! 🚀"):
         st.error("The Genie needs a name and a wish to work his magic! 🧞‍♂️")
     else:
         with st.spinner("Drawing a cartoon of your future... 🎨"):
-            # --- THE ROBUST FIX: Try multiple models until one works ---
+            # List of models to try
             model_options = [
                 "gemini-1.5-flash", 
                 "gemini-1.5-flash-latest", 
@@ -55,36 +56,41 @@ if st.button("Get My Cartoon Prediction! 🚀"):
             
             response_text = None
             used_model = None
+            last_error = "No attempts made."
 
             cartoon_prompt = (
-                f"Imagine you are a hilarious, high-energy cartoon narrator (like a mix of a Disney sidekick and an Anime hero). "
+                f"Imagine you are a hilarious, high-energy cartoon narrator. "
                 f"The user {name} has this resolution: '{resolution}'. "
-                f"1. Rate their resolution in a funny way (e.g., 'Ambitious Level: Over 9000!'). "
-                f"2. Give them a 'Future Prediction' describing a funny cartoon scene of them succeeding (or struggling hilariously) in 2026. "
-                f"3. End with a motivating, warm punchline. "
-                f"Use lots of emojis. Keep it under 150 words. Make it feel like a happy comic book script."
+                f"1. Rate their resolution in a funny way. "
+                f"2. Describe a funny cartoon scene of them in 2026. "
+                f"3. End with a punchline. "
+                f"Use emojis. Keep it under 150 words."
             )
 
-            # Loop through models to find one that works
+            # Loop through models
             for model_name in model_options:
                 try:
                     model = genai.GenerativeModel(model_name)
                     response = model.generate_content(cartoon_prompt)
                     response_text = response.text
                     used_model = model_name
-                    break # It worked! Stop the loop.
-                except Exception:
-                    continue # Try the next model
+                    break # Success!
+                except Exception as e:
+                    last_error = e
+                    continue # Try next model
             
             # --- DISPLAY RESULT ---
             if response_text:
                 st.balloons()
-                st.success(f"✨ The Genie has spoken! (Using magic: {used_model}) ✨")
+                st.success(f"✨ The Genie has spoken! ✨")
                 with st.container():
                     st.markdown("### 🎬 Scene: 2026")
                     st.markdown(f"*{response_text}*")
             else:
-                st.error("🚫 The Genie is having connection issues with Google. Please check your API Key in secrets!")
+                # SHOW THE REAL ERROR SO WE CAN FIX IT
+                st.error("🚫 Connection Failed.")
+                st.warning(f"Debug Error Info: {last_error}")
+                st.info("Check your API Key in Settings -> Secrets. It should look like: GEMINI_API_KEY = \"AIza...\"")
 
 # --- FOOTER ---
 st.markdown("---")
