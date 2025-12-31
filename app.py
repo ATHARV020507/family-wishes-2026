@@ -51,7 +51,6 @@ if st.button("Get My Cartoon Prediction! 🚀"):
         with st.spinner("Drawing a cartoon of your future... 🎨"):
             try:
                 # --- THE PROMPT RE-ENGINEERED FOR CARTOONS ---
-                # Using the faster model to fix the 404 error
                 model = genai.GenerativeModel('gemini-1.5-flash')
                 
                 cartoon_prompt = (
@@ -79,4 +78,4 @@ if st.button("Get My Cartoon Prediction! 🚀"):
 
 # --- FOOTER ---
 st.markdown("---")
-st.caption("✨ Made with AI for the Family New Year Party ✨") 
+st.caption("✨ Made with AI for the Family New Year Party ✨")
